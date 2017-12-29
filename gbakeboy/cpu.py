@@ -19,8 +19,7 @@ class Cpu:
         self._SP = 0
         self._PC = 0
 
-
-        # self.set_register_8('F', h2i("B0"))
+        # self.set_register_8('F', h2i("B0"))  # Why?
         self.set_register_16('AF', h2i("01B0"))
         self.set_register_16('BC', h2i("0013"))
         self.set_register_16('DE', h2i("00D8"))

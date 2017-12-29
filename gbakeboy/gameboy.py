@@ -4,6 +4,7 @@ import logging
 from cpu import Cpu
 from memory import Memory
 from utils import hex2int as h2i
+from settings import bios_file
 
 
 class Gameboy:
@@ -18,7 +19,7 @@ class Gameboy:
 
     def load_bios(self):
         logging.debug('loading bios rom')
-        with open('bios.rom', mode='rb') as f:
+        with open(bios_file, mode='rb') as f:
             boot = f.read()
 
         self.mem.load(boot, h2i('0000'))
