@@ -1,5 +1,5 @@
 import logging
-from utils import hex2int as h2i
+from .utils import hex2int as h2i
 
 
 class Cpu:

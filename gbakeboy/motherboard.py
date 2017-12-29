@@ -1,13 +1,13 @@
 
 import logging
 
-from cpu import Cpu
-from memory import Memory
-from utils import hex2int as h2i
-from settings import bios_file
+from .cpu import Cpu
+from .memory import Memory
+from .utils import hex2int as h2i
+from .settings import bios_file
 
 
-class Gameboy:
+class Motherboard:
     """
     Essentially the motherboard
     """
