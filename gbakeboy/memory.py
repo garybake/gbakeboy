@@ -1,9 +1,10 @@
 import logging
 from .utils import hex2int as h2i
+from .settings import MAX_MEMORY_BYTES
 
 
 class Memory:
-    memory = bytearray(65536)
+    memory = bytearray(MAX_MEMORY_BYTES)
 
     def __init__(self):
         for i in range(0, len(self.memory)):
@@ -12,14 +13,21 @@ class Memory:
     def load(self, data, offset, start=0, end=0xFFFF):
         logging.debug("loading data into loc %X and up." % offset)
         for i in range(max(0, start), min(len(data), end)):
-            self.memory[int(i+offset)] = data[i]
+            addr = int(i+offset)
+            if addr >= MAX_MEMORY_BYTES:
+                raise MemoryError
+            self.memory[addr] = data[i]
 
     def read_byte(self, addr):
         # gets an 16bit int addr and returns the 8bit int content of memory
+        if addr >= MAX_MEMORY_BYTES or addr < 0:
+            raise MemoryError('Attempt to read outside of Memory range')
         return self.memory[addr]
 
     def read_word(self, addr):
         # gets an 16bit int addr and returns the 16 bit int content of memory
+        if addr >= MAX_MEMORY_BYTES or addr < 0:
+            raise MemoryError('Attempt to read outside of Memory range')
         return ((self.memory[addr+1] << 8) | self.memory[addr])
 
     def memprint(self, offset, bytes, mode='hex'):

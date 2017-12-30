@@ -4,7 +4,7 @@ import logging
 from .cpu import Cpu
 from .memory import Memory
 from .utils import hex2int as h2i
-from .settings import bios_file
+from .settings import BIOS_FILE
 
 
 class Motherboard:
@@ -19,7 +19,7 @@ class Motherboard:
 
     def load_bios(self):
         logging.debug('loading bios rom')
-        with open(bios_file, mode='rb') as f:
+        with open(BIOS_FILE, mode='rb') as f:
             boot = f.read()
 
         self.mem.load(boot, h2i('0000'))

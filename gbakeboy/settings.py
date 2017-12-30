@@ -2,4 +2,6 @@ import os
 
 this_dir = os.path.dirname(__file__)
 
-bios_file = os.path.join(this_dir, '../roms/bios.rom')
+BIOS_FILE = os.path.join(this_dir, '../roms/bios.rom')
+
+MAX_MEMORY_BYTES = 0xFFFF
