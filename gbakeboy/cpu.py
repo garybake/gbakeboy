@@ -29,6 +29,23 @@ class Cpu:
         logging.debug("default registers set")
         self.print_registers()
 
+        self.instructions = {
+            0x31: {
+                'fn': self._LD_16_SP_nn,
+                'immediate_16': True,
+                'cycles': 12,
+                'flags': [],
+                'PC': 3
+            },
+            0xAF: {
+                'fn': self._XOR_A,
+                'immediate_16': True,
+                'cycles': 4,
+                'flags': [],
+                'PC': 1
+            }
+        }
+
     def print_registers(self):
         logging.debug("AF: \t{0:X}".format(self._get_AF()))
         logging.debug("BC: \t{0:X}".format(self._get_BC()))
@@ -42,25 +59,15 @@ class Cpu:
         instr = self.mem.read_byte(self._get_PC())
         args = []
 
-        # decoding
-        instructions = {
-            0x31: {
-                'fn': self._LD_16_SP_nn,
-                'immediate_16': True,
-                'cycles': 12,
-                'flags': [],
-                'PC': 3
-            }
-        }
-        logging.debug('Command: {}'.format(hex(instr)))
-        command = instructions[instr]
-        logging.debug('Command: {}'.format(command['fn'].__name__))
+        command = self.instructions[instr]
 
         # fetch additional
         if command['immediate_16']:
             args.append(self.mem.read_word(self._get_PC()+1))
         elif command['immediate_8']:
             args.append(self.mem.read_byte(self._get_PC()+1))
+
+        logging.debug('Command: {} {} {}'.format(hex(instr), command['fn'].__name__, args))
 
         # execute the command
         fn = command['fn']
@@ -311,6 +318,13 @@ class Cpu:
     def _get_PC(self):
         return self._PC
 
+    # Instructions
     def _LD_16_SP_nn(self, args):
+        # Load value into SP
         nn = args[0]
         self._set_SP(nn)
+
+    def _XOR_A(self, args):
+        # Set A to zero
+        # XOR with self is 0
+        self._set_A(0x00)

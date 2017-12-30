@@ -12,6 +12,8 @@ def loop(gb):
         gb.cpu.print_registers()
         gb.tick()
         gb.cpu.print_registers()
+        gb.tick()
+        gb.cpu.print_registers()
 
 
 def main(argv):
