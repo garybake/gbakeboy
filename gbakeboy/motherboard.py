@@ -28,4 +28,5 @@ class Motherboard:
         pass
 
     def tick(self):
-        self.cpu.execute()
+        cycles = self.cpu.execute()
+        return cycles

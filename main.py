@@ -7,14 +7,16 @@ from gbakeboy import Motherboard
 
 
 def loop(gb):
+    cycles = 0
     for i in range(0, 1):
         logging.debug('tick {}'.format(i))
         gb.cpu.print_registers()
-        gb.tick()
+        cycles += gb.tick()
         gb.cpu.print_registers()
-        gb.tick()
+        cycles += gb.tick()
         gb.cpu.print_registers()
 
+    logging.debug('{} cycles executed.'.format(cycles))
 
 def main(argv):
     logging.debug('initialising...')

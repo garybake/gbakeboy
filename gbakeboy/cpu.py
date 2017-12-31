@@ -38,10 +38,10 @@ class Cpu:
                 'PC': 3
             },
             0xAF: {
-                'fn': self._XOR_A,
-                'immediate_16': True,
+                'fn': self._XOR_A_n,
+                'register': 'A',
                 'cycles': 4,
-                'flags': ['Z', 'N'],
+                'flags': ['Z'],
                 'PC': 1
             }
         }
@@ -65,11 +65,12 @@ class Cpu:
         Get arguments for the instruction
         """
         args = []
-        if command['immediate_16']:
+        if command.get('immediate_16', False):
             args.append(self.mem.read_word(self._get_PC()+1))
-        elif command['immediate_8']:
+        elif command.get('immediate_8', False):
             args.append(self.mem.read_byte(self._get_PC()+1))
-
+        elif command.get('register', False):
+            args.append(command['register'])
         return args
 
     def execute_command(self, command, args):
@@ -85,12 +86,12 @@ class Cpu:
         """
         self._set_PC(self._get_PC()+offset)
 
-    def set_flags(self, flags):
-        """
-        Set the flags based on the result of the operation
-        """
-        for flag in flags:
-            self.set_flag(flag)
+    # def set_flags(self, flags):
+    #     """
+    #     Set the flags based on the result of the operation
+    #     """
+    #     for flag in flags:
+    #         self.set_flag(flag)
 
     def execute(self):
         """
@@ -103,7 +104,8 @@ class Cpu:
 
         self.execute_command(command, args)
         self.increment_pc(command['PC'])
-        self.set_flags(command['flags'])
+        # self.set_flags(command['flags'])
+        return command['cycles']
 
     def set_register_8(self, reg, val):
         """
@@ -139,29 +141,27 @@ class Cpu:
         get value of register
         """
         fns = {
-            'A': self._get_A(),
-            'F': self._get_F(),
-            'B': self._get_B(),
-            'C': self._get_C(),
-            'D': self._get_D(),
-            'E': self._get_E(),
-            'H': self._get_H(),
-            'L': self._get_L()
+            'A': self._get_A,
+            'F': self._get_F,
+            'B': self._get_B,
+            'C': self._get_C,
+            'D': self._get_D,
+            'E': self._get_E,
+            'H': self._get_H,
+            'L': self._get_L
         }
-        fn = fns[reg]
-        return fn()
+        return fns[reg]()
 
     def get_register_16(self, reg):
         fns = {
-            'AF': self._get_AF(),
-            'BC': self._get_BC(),
-            'DE': self._get_DE(),
-            'HL': self._get_HL(),
-            'SP': self._get_SP(),
-            'PC': self._get_PC()
+            'AF': self._get_AF,
+            'BC': self._get_BC,
+            'DE': self._get_DE,
+            'HL': self._get_HL,
+            'SP': self._get_SP,
+            'PC': self._get_PC
         }
-        fn = fns[reg]
-        return fn()
+        return fns[reg]()
 
     def set_flag(self, flag):
         """
@@ -178,11 +178,8 @@ class Cpu:
             'H': 0b00100000,
             'C': 0b00010000,
         }
-        # TODO: fix this
-        # logging.debug('Pre flag: {}'.format(self._get_F()))
-        # logging.debug('Pre... {}'.format(flgs[flag]))
+        # TODO: check this
         self._set_F(self._get_F() & flgs[flag])
-        # logging.debug('Post flag: {}'.format(self._get_F()))
 
     # commands
 
@@ -357,7 +354,15 @@ class Cpu:
         nn = args[0]
         self._set_SP(nn)
 
-    def _XOR_A(self, args):
-        # Set A to zero
-        # XOR with self is 0
-        self._set_A(0x00)
+    def _XOR_A_n(self, args):
+        """
+        XOR A with another register
+        Store the result in A
+        (XOR with self is 0)
+        """
+        register = args[0]
+
+        result = self._get_A() ^ self.get_register_8(register)
+        if result == 0:
+            self.set_flag('Z')
+        self._set_A(result)
