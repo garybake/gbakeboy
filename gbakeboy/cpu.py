@@ -41,7 +41,7 @@ class Cpu:
                 'fn': self._XOR_A,
                 'immediate_16': True,
                 'cycles': 4,
-                'flags': [],
+                'flags': ['Z', 'N'],
                 'PC': 1
             }
         }
@@ -54,31 +54,56 @@ class Cpu:
         logging.debug("SP: \t{0:X}".format(self._get_SP()))
         logging.debug("PC: \t{0:X}".format(self._get_PC()))
 
-    def execute(self):
-        # get the instruction opcode from the PC
-        instr = self.mem.read_byte(self._get_PC())
+    def get_next_instruction(self):
+        """
+        Get the instruction opcode from the PC
+        """
+        return self.mem.read_byte(self._get_PC())
+
+    def get_additional_instructions(self, command):
+        """
+        Get arguments for the instruction
+        """
         args = []
-
-        command = self.instructions[instr]
-
-        # fetch additional
         if command['immediate_16']:
             args.append(self.mem.read_word(self._get_PC()+1))
         elif command['immediate_8']:
             args.append(self.mem.read_byte(self._get_PC()+1))
 
-        logging.debug('Command: {} {} {}'.format(hex(instr), command['fn'].__name__, args))
+        return args
 
-        # execute the command
+    def execute_command(self, command, args):
+        """
+        Execute the supplied command using the args
+        """
         fn = command['fn']
         fn(args)
-        logging.debug('Args: {}'.format(hex(args[0])))
 
-        # increment PC
-        self._set_PC(self._get_PC()+command['PC'])
+    def increment_pc(self, offset):
+        """
+        Increment the program counter by the offset
+        """
+        self._set_PC(self._get_PC()+offset)
 
-        # set flags
-        # _set_flags[command['flags']]
+    def set_flags(self, flags):
+        """
+        Set the flags based on the result of the operation
+        """
+        for flag in flags:
+            self.set_flag(flag)
+
+    def execute(self):
+        """
+        Execute the next instruction
+        """
+        instr = self.get_next_instruction()
+        command = self.instructions[instr]
+        args = self.get_additional_instructions(command)
+        logging.debug('Command: {} {} {}'.format(hex(instr), command['fn'].__name__, args))
+
+        self.execute_command(command, args)
+        self.increment_pc(command['PC'])
+        self.set_flags(command['flags'])
 
     def set_register_8(self, reg, val):
         """
@@ -146,13 +171,18 @@ class Cpu:
         H - half carry (4th bit carried over)
         C - full carry (8th bit carried over)
         """
+        logging.debug('setting flag: {}'.format(flag))
         flgs = {
             'Z': 0b10000000,
             'N': 0b01000000,
             'H': 0b00100000,
             'C': 0b00010000,
         }
-        self._set_F(self._get_F & flgs[flag])
+        # TODO: fix this
+        # logging.debug('Pre flag: {}'.format(self._get_F()))
+        # logging.debug('Pre... {}'.format(flgs[flag]))
+        self._set_F(self._get_F() & flgs[flag])
+        # logging.debug('Post flag: {}'.format(self._get_F()))
 
     # commands
 
@@ -292,6 +322,9 @@ class Cpu:
 
     def _get_E(self):
         return self._E
+
+    def _get_F(self):
+        return self._F
 
     def _get_H(self):
         return self._H
