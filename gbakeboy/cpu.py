@@ -7,17 +7,17 @@ class Cpu:
     def __init__(self, memory):
         self.mem = memory
 
-        # registers are private (8 bit)
-        self._A = 0
-        self._F = 0
-        self._B = 0
-        self._C = 0
-        self._D = 0
-        self._E = 0
-        self._H = 0
-        self._L = 0
-        self._SP = 0
-        self._PC = 0
+        # registers are 8 bit
+        self.A = 0
+        self.F = 0
+        self.B = 0
+        self.C = 0
+        self.D = 0
+        self.E = 0
+        self.H = 0
+        self.L = 0
+        self.SP = 0
+        self.PC = 0
 
         # self.set_register_8('F', h2i("B0"))  # Why?
         self.set_register_16('AF', h2i("01B0"))
@@ -31,14 +31,14 @@ class Cpu:
 
         self.instructions = {
             0x31: {
-                'fn': self._LD_16_SP_nn,
+                'fn': self.LD_16_SP_nn,
                 'immediate_16': True,
                 'cycles': 12,
                 'flags': [],
                 'PC': 3
             },
             0xAF: {
-                'fn': self._XOR_A_n,
+                'fn': self.XOR_A_n,
                 'register': 'A',
                 'cycles': 4,
                 'flags': ['Z'],
@@ -47,18 +47,18 @@ class Cpu:
         }
 
     def print_registers(self):
-        logging.debug("AF: \t{0:X}".format(self._get_AF()))
-        logging.debug("BC: \t{0:X}".format(self._get_BC()))
-        logging.debug("DE: \t{0:X}".format(self._get_DE()))
-        logging.debug("HL: \t{0:X}".format(self._get_HL()))
-        logging.debug("SP: \t{0:X}".format(self._get_SP()))
-        logging.debug("PC: \t{0:X}".format(self._get_PC()))
+        logging.debug("AF: \t{0:X}".format(self.get_AF()))
+        logging.debug("BC: \t{0:X}".format(self.get_BC()))
+        logging.debug("DE: \t{0:X}".format(self.get_DE()))
+        logging.debug("HL: \t{0:X}".format(self.get_HL()))
+        logging.debug("SP: \t{0:X}".format(self.get_SP()))
+        logging.debug("PC: \t{0:X}".format(self.get_PC()))
 
     def get_next_instruction(self):
         """
         Get the instruction opcode from the PC
         """
-        return self.mem.read_byte(self._get_PC())
+        return self.mem.read_byte(self.get_PC())
 
     def get_additional_instructions(self, command):
         """
@@ -66,9 +66,9 @@ class Cpu:
         """
         args = []
         if command.get('immediate_16', False):
-            args.append(self.mem.read_word(self._get_PC()+1))
+            args.append(self.mem.read_word(self.get_PC()+1))
         elif command.get('immediate_8', False):
-            args.append(self.mem.read_byte(self._get_PC()+1))
+            args.append(self.mem.read_byte(self.get_PC()+1))
         elif command.get('register', False):
             args.append(command['register'])
         return args
@@ -84,7 +84,7 @@ class Cpu:
         """
         Increment the program counter by the offset
         """
-        self._set_PC(self._get_PC()+offset)
+        self.set_PC(self.get_PC()+offset)
 
     # def set_flags(self, flags):
     #     """
@@ -114,25 +114,25 @@ class Cpu:
         logging.debug('set_register_8: ' + reg)
         # create dict with registers as key and functions as vals (sort of a jump table)
         fns = {
-            'A': self._set_A,
-            'B': self._set_B,
-            'C': self._set_C,
-            'D': self._set_D,
-            'E': self._set_E,
-            'F': self._set_F,  # Delete Me
-            'H': self._set_H,
-            'L': self._set_L
+            'A': self.set_A,
+            'B': self.set_B,
+            'C': self.set_C,
+            'D': self.set_D,
+            'E': self.set_E,
+            'F': self.set_F,  # Delete Me
+            'H': self.set_H,
+            'L': self.set_L
         }
         fns[reg](val)
 
     def set_register_16(self, reg, val):
         fns = {
-            'AF': self._set_AF,
-            'BC': self._set_BC,
-            'DE': self._set_DE,
-            'HL': self._set_HL,
-            'SP': self._set_SP,
-            'PC': self._set_PC
+            'AF': self.set_AF,
+            'BC': self.set_BC,
+            'DE': self.set_DE,
+            'HL': self.set_HL,
+            'SP': self.set_SP,
+            'PC': self.set_PC
         }
         fns[reg](val)
 
@@ -141,25 +141,25 @@ class Cpu:
         get value of register
         """
         fns = {
-            'A': self._get_A,
-            'F': self._get_F,
-            'B': self._get_B,
-            'C': self._get_C,
-            'D': self._get_D,
-            'E': self._get_E,
-            'H': self._get_H,
-            'L': self._get_L
+            'A': self.get_A,
+            'F': self.get_F,
+            'B': self.get_B,
+            'C': self.get_C,
+            'D': self.get_D,
+            'E': self.get_E,
+            'H': self.get_H,
+            'L': self.get_L
         }
         return fns[reg]()
 
     def get_register_16(self, reg):
         fns = {
-            'AF': self._get_AF,
-            'BC': self._get_BC,
-            'DE': self._get_DE,
-            'HL': self._get_HL,
-            'SP': self._get_SP,
-            'PC': self._get_PC
+            'AF': self.get_AF,
+            'BC': self.get_BC,
+            'DE': self.get_DE,
+            'HL': self.get_HL,
+            'SP': self.get_SP,
+            'PC': self.get_PC
         }
         return fns[reg]()
 
@@ -179,7 +179,7 @@ class Cpu:
             'C': 0b00010000,
         }
         # TODO: check this
-        self._set_F(self._get_F() & flgs[flag])
+        self.set_F(self.get_F() & flgs[flag])
 
     # commands
 
@@ -256,105 +256,108 @@ class Cpu:
         pass
 
     # 8-bit setters
-    def _set_A(self, val):
-        self._A = val
+    def set_A(self, val):
+        self.A = val
 
-    def _set_B(self, val):
-        self._B = val
+    def set_B(self, val):
+        self.B = val
 
-    def _set_C(self, val):
-        self._C = val
+    def set_C(self, val):
+        self.C = val
 
-    def _set_D(self, val):
-        self._D = val
+    def set_D(self, val):
+        self.D = val
 
-    def _set_E(self, val):
-        self._E = val
+    def set_E(self, val):
+        self.E = val
 
     # Delete me
-    def _set_F(self, val):
-        self._F = val
+    def set_F(self, val):
+        self.F = val
 
-    def _set_H(self, val):
-        self._H = val
+    def set_H(self, val):
+        self.H = val
 
-    def _set_L(self, val):
-        self._L = val
+    def set_L(self, val):
+        self.L = val
 
     # 16-bit setters
-    def _set_AF(self, val):
-        self._A = val & 0b0000000011111111
-        self._F = (val & 0b1111111100000000) >> 8
+    def set_AF(self, val):
+        self.A = val & 0b0000000011111111
+        self.F = (val & 0b1111111100000000) >> 8
 
-    def _set_BC(self, val):
-        self._B = val & 0b0000000011111111
-        self._C = (val & 0b1111111100000000) >> 8
+    def set_BC(self, val):
+        self.B = val & 0b0000000011111111
+        self.C = (val & 0b1111111100000000) >> 8
 
-    def _set_DE(self, val):
-        self._D = val & 0b0000000011111111
-        self._E = (val & 0b1111111100000000) >> 8
+    def set_DE(self, val):
+        self.D = val & 0b0000000011111111
+        self.E = (val & 0b1111111100000000) >> 8
 
-    def _set_HL(self, val):
-        self._H = val & 0b0000000011111111
-        self._L = (val & 0b1111111100000000) >> 8
+    def set_HL(self, val):
+        self.H = val & 0b0000000011111111
+        self.L = (val & 0b1111111100000000) >> 8
 
-    def _set_SP(self, val):
-        self._SP = val
+    def set_SP(self, val):
+        self.SP = val
 
-    def _set_PC(self, val):
-        self._PC = val
+    def set_PC(self, val):
+        self.PC = val
 
     # 8-bit getters
-    def _get_A(self):
-        return self._A
+    def get_A(self):
+        return self.A
 
-    def _get_B(self):
-        return self._B
+    def get_B(self):
+        return self.B
 
-    def _get_C(self):
-        return self._C
+    def get_C(self):
+        return self.C
 
-    def _get_D(self):
-        return self._D
+    def get_D(self):
+        return self.D
 
-    def _get_E(self):
-        return self._E
+    def get_E(self):
+        return self.E
 
-    def _get_F(self):
-        return self._F
+    def get_F(self):
+        return self.F
 
-    def _get_H(self):
-        return self._H
+    def is_flag_zero(self):
+        pass
 
-    def _get_L(self):
-        return self._L
+    def get_H(self):
+        return self.H
+
+    def get_L(self):
+        return self.L
 
     # 16-bit getters
-    def _get_AF(self):
-        return ((self._A << 8) | self._F)
+    def get_AF(self):
+        return ((self.A << 8) | self.F)
 
-    def _get_BC(self):
-        return ((self._B << 8) | self._C)
+    def get_BC(self):
+        return ((self.B << 8) | self.C)
 
-    def _get_DE(self):
-        return ((self._D << 8) | self._E)
+    def get_DE(self):
+        return ((self.D << 8) | self.E)
 
-    def _get_HL(self):
-        return ((self._H << 8) | self._L)
+    def get_HL(self):
+        return ((self.H << 8) | self.L)
 
-    def _get_SP(self):
-        return self._SP
+    def get_SP(self):
+        return self.SP
 
-    def _get_PC(self):
-        return self._PC
+    def get_PC(self):
+        return self.PC
 
     # Instructions
-    def _LD_16_SP_nn(self, args):
+    def LD_16_SP_nn(self, args):
         # Load value into SP
         nn = args[0]
-        self._set_SP(nn)
+        self.set_SP(nn)
 
-    def _XOR_A_n(self, args):
+    def XOR_A_n(self, args):
         """
         XOR A with another register
         Store the result in A
@@ -362,7 +365,7 @@ class Cpu:
         """
         register = args[0]
 
-        result = self._get_A() ^ self.get_register_8(register)
+        result = self.get_A() ^ self.get_register_8(register)
         if result == 0:
             self.set_flag('Z')
-        self._set_A(result)
+        self.set_A(result)

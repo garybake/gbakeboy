@@ -18,6 +18,7 @@ def loop(gb):
 
     logging.debug('{} cycles executed.'.format(cycles))
 
+
 def main(argv):
     logging.debug('initialising...')
     gb = Motherboard()

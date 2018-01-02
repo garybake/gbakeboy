@@ -5,7 +5,7 @@ from gbakeboy import Memory
 from gbakeboy import hex2int as h2i
 
 
-class test_memory(unittest.TestCase):
+class test_cpu(unittest.TestCase):
 
     def setUp(self):
         mem = Memory()
@@ -17,6 +17,13 @@ class test_memory(unittest.TestCase):
 
         self.assertNotEqual(mem, None)
 
-        self.assertEqual(cpu._A, h2i("B0"))
-        self.assertEqual(cpu._F, h2i("01"))
-        self.assertEqual(cpu._PC, 0)
+        self.assertEqual(cpu.A, h2i("B0"))
+        self.assertEqual(cpu.F, h2i("01"))
+        self.assertEqual(cpu.PC, 0)
+
+    # def test_flags(self):
+    #     cpu = self.cpu
+    #     flags = cpu.get_F()
+    #     flags_string = '{0:b}'.format(flags)
+    #     # print('Flags: {}'.format(flags))
+    #     self.assertEqual(flags_string, "gary")
