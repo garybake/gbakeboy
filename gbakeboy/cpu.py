@@ -1,5 +1,6 @@
 import logging
 from .utils import hex2int as h2i
+from .utils import print_bin_16, print_bin_8
 
 
 class Cpu:
@@ -30,14 +31,14 @@ class Cpu:
         self.print_registers()
 
         self.instructions = {
-            0x31: {
+            0x31: {  # 49
                 'fn': self.LD_16_SP_nn,
                 'immediate_16': True,
                 'cycles': 12,
                 'flags': [],
                 'PC': 3
             },
-            0xAF: {
+            0xAF: {  # 175
                 'fn': self.XOR_A_n,
                 'register': 'A',
                 'cycles': 4,
@@ -47,12 +48,19 @@ class Cpu:
         }
 
     def print_registers(self):
-        logging.debug("AF: \t{0:X}".format(self.get_AF()))
-        logging.debug("BC: \t{0:X}".format(self.get_BC()))
-        logging.debug("DE: \t{0:X}".format(self.get_DE()))
-        logging.debug("HL: \t{0:X}".format(self.get_HL()))
-        logging.debug("SP: \t{0:X}".format(self.get_SP()))
-        logging.debug("PC: \t{0:X}".format(self.get_PC()))
+        AF = self.get_AF()
+        BC = self.get_BC()
+        DE = self.get_DE()
+        HL = self.get_HL()
+        SP = self.get_SP()
+        PC = self.get_PC()
+
+        logging.debug("AF: \t{0:X} \t {1}".format(AF, print_bin_16(AF)))
+        logging.debug("BC: \t{0:X} \t {1}".format(BC, print_bin_16(BC)))
+        logging.debug("DE: \t{0:X} \t {1}".format(DE, print_bin_16(DE)))
+        logging.debug("HL: \t{0:X} \t {1}".format(HL, print_bin_16(HL)))
+        logging.debug("SP: \t{0:X} \t {1}".format(SP, print_bin_16(SP)))
+        logging.debug("PC: \t{0:X} \t {1}".format(PC, print_bin_16(PC)))
 
     def get_next_instruction(self):
         """
@@ -92,6 +100,15 @@ class Cpu:
     #     """
     #     for flag in flags:
     #         self.set_flag(flag)
+
+    def set_flag_Z(self):
+        flags = self.get_F
+        mask = 1 << 8
+        flags |= mask
+        self.set_F(flags)
+
+    def reset_flag_Z(self):
+        pass
 
     def execute(self):
         """
