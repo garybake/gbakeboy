@@ -17,9 +17,20 @@ class test_cpu(unittest.TestCase):
 
         self.assertNotEqual(mem, None)
 
-        self.assertEqual(cpu.A, h2i("B0"))
-        self.assertEqual(cpu.F, h2i("01"))
-        self.assertEqual(cpu.PC, 0)
+        self.assertEqual(cpu.A, h2i("01"))
+        self.assertEqual(cpu.F, h2i("B0"))
+
+        self.assertEqual(cpu.B, h2i("00"))
+        self.assertEqual(cpu.C, h2i("13"))
+
+        self.assertEqual(cpu.D, h2i("00"))
+        self.assertEqual(cpu.E, h2i("D8"))
+
+        self.assertEqual(cpu.H, h2i("01"))
+        self.assertEqual(cpu.L, h2i("4D"))
+
+        self.assertEqual(cpu.SP, h2i("FFFE"))
+        self.assertEqual(cpu.PC, h2i("0"))
 
     # def test_flags(self):
     #     cpu = self.cpu

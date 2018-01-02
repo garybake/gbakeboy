@@ -283,20 +283,20 @@ class Cpu:
 
     # 16-bit setters
     def set_AF(self, val):
-        self.A = val & 0b0000000011111111
-        self.F = (val & 0b1111111100000000) >> 8
+        self.A = (val & 0b1111111100000000) >> 8
+        self.F = val & 0b0000000011111111
 
     def set_BC(self, val):
-        self.B = val & 0b0000000011111111
-        self.C = (val & 0b1111111100000000) >> 8
+        self.B = (val & 0b1111111100000000) >> 8
+        self.C = val & 0b0000000011111111
 
     def set_DE(self, val):
-        self.D = val & 0b0000000011111111
-        self.E = (val & 0b1111111100000000) >> 8
+        self.D = (val & 0b1111111100000000) >> 8
+        self.E = val & 0b0000000011111111
 
     def set_HL(self, val):
-        self.H = val & 0b0000000011111111
-        self.L = (val & 0b1111111100000000) >> 8
+        self.H = (val & 0b1111111100000000) >> 8
+        self.L = val & 0b0000000011111111
 
     def set_SP(self, val):
         self.SP = val
