@@ -8,13 +8,13 @@ from gbakeboy import Motherboard
 
 def loop(gb):
     cycles = 0
-    for i in range(0, 1):
-        logging.debug('tick {}'.format(i))
-        gb.cpu.print_registers()
+    gb.cpu.print_registers()
+    for i in range(1, 5):
+        logging.debug('--------tick {}'.format(i))
         cycles += gb.tick()
         gb.cpu.print_registers()
-        cycles += gb.tick()
-        gb.cpu.print_registers()
+        # cycles += gb.tick()
+        # gb.cpu.print_registers()
 
     logging.debug('{} cycles executed.'.format(cycles))
 

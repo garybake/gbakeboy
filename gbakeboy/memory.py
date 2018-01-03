@@ -18,6 +18,16 @@ class Memory:
                 raise MemoryError
             self.memory[addr] = data[i]
 
+    def write_byte(self, addr, val):
+        if addr >= MAX_MEMORY_BYTES or addr < 0:
+            raise MemoryError('Attempt to read outside of Memory range: {}'.format(addr))
+        logging.debug('setting mem {0:X} to val {1:X}'.format(addr, val))
+        self.memory[addr] = val
+
+    def write_word(self, addr, val):
+        # TODO
+        pass
+
     def read_byte(self, addr):
         # gets an 16bit int addr and returns the 8bit int content of memory
         if addr >= MAX_MEMORY_BYTES or addr < 0:

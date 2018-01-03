@@ -31,8 +31,22 @@ class Cpu:
         self.print_registers()
 
         self.instructions = {
+            0x21: {  # 33
+                'fn': self.LD_16_HL_nn,
+                'immediate_16': True,
+                'cycles': 12,
+                'flags': [],
+                'PC': 3
+            },
             0x31: {  # 49
                 'fn': self.LD_16_SP_nn,
+                'immediate_16': True,
+                'cycles': 12,
+                'flags': [],
+                'PC': 3
+            },
+            0x32: {  # 50
+                'fn': self.LD_16_A_iHL_dec,
                 'immediate_16': True,
                 'cycles': 12,
                 'flags': [],
@@ -115,6 +129,7 @@ class Cpu:
         Execute the next instruction
         """
         instr = self.get_next_instruction()
+        # logging.debug(hex(instr))
         command = self.instructions[instr]
         args = self.get_additional_instructions(command)
         logging.debug('Command: {} {} {}'.format(hex(instr), command['fn'].__name__, args))
@@ -197,80 +212,6 @@ class Cpu:
         }
         # TODO: check this
         self.set_F(self.get_F() & flgs[flag])
-
-    # commands
-
-    # LD nn,n (1)
-    def LD_nn_n(nn, n):
-        pass
-
-    # LD r1,r2 (2)
-    def LD_r1_r2(r1, r2):
-        pass
-
-    # LD A, n (3)
-    def LD_A_n(A, n):
-        pass
-
-    # LD n, A (4)
-    def LD_n_A(n, A):
-        pass
-
-    # LD A, (C) (5)
-    def LD_A_C(A, C):
-        pass
-
-    # LD (C), A (6)
-    def LD_C_A(C, A):
-        pass
-
-    # LD A, (HLD) (7)
-    def LD_A_HLD():
-        pass
-
-    # LD A, (HL-) (8)
-    def LD_A_HL():
-        pass
-
-    # LDD A, (HL) (9)
-    def LDD_A_HL():
-        pass
-
-    # LD (HLD), A (10)
-    def LD_HLD_A():
-        pass
-
-    # LD (HL-), A (11)
-    def LDD_HL_A():
-        pass
-
-    # LD (HL), A (12)
-    def LDD_HL_A():
-        pass
-
-    # LD A, (HLI) (13)
-    def LD_A_HLI():
-        pass
-
-    # LD A, (HL+) (14)
-    def LD_A_HLP():
-        pass
-
-    # LDI A, (HL) (15)
-    def LDI_A_HL():
-        pass
-
-    # LD (HLI), A (16)
-    def LD_HLI_A():
-        pass
-
-    # LD (HL+), A (17)
-    def LDI_HLP_A():
-        pass
-
-    # LDI (HL), A (18)
-    def LDI_HL_A():
-        pass
 
     # 8-bit setters
     def set_A(self, val):
@@ -369,10 +310,30 @@ class Cpu:
         return self.PC
 
     # Instructions
+
+    def LD_16_HL_nn(self, args):
+        """
+        Load 16 bit value into HL
+        """
+        nn = args[0]
+        self.set_HL(nn)
+
     def LD_16_SP_nn(self, args):
-        # Load value into SP
+        """
+        Load value into SP
+        """
         nn = args[0]
         self.set_SP(nn)
+
+    def LD_16_A_iHL_dec(self, args):
+        """
+        Load register ‘A‘ to the memory address pointed to by ‘HL‘ (write 0 to 0x9FFF),
+        and then decrement the value of ‘HL‘ (from 0x9FFF to 0x9FFE).
+        """
+        a_val = self.get_A()
+        mem_address = self.get_HL()
+        self.mem.write_byte(mem_address, a_val)
+        self.set_register_16('HL', mem_address - 1)
 
     def XOR_A_n(self, args):
         """
