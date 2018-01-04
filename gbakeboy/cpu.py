@@ -35,28 +35,24 @@ class Cpu:
                 'fn': self.LD_16_HL_nn,
                 'immediate_16': True,
                 'cycles': 12,
-                'flags': [],
                 'PC': 3
             },
             0x31: {  # 49
                 'fn': self.LD_16_SP_nn,
                 'immediate_16': True,
                 'cycles': 12,
-                'flags': [],
                 'PC': 3
             },
             0x32: {  # 50
                 'fn': self.LD_16_A_iHL_dec,
                 'immediate_16': True,
                 'cycles': 12,
-                'flags': [],
                 'PC': 3
             },
             0xAF: {  # 175
                 'fn': self.XOR_A_n,
                 'register': 'A',
                 'cycles': 4,
-                'flags': ['Z'],
                 'PC': 1
             }
         }
@@ -108,22 +104,6 @@ class Cpu:
         """
         self.set_PC(self.get_PC()+offset)
 
-    # def set_flags(self, flags):
-    #     """
-    #     Set the flags based on the result of the operation
-    #     """
-    #     for flag in flags:
-    #         self.set_flag(flag)
-
-    def set_flag_Z(self):
-        flags = self.get_F
-        mask = 1 << 8
-        flags |= mask
-        self.set_F(flags)
-
-    def reset_flag_Z(self):
-        pass
-
     def execute(self):
         """
         Execute the next instruction
@@ -136,7 +116,6 @@ class Cpu:
 
         self.execute_command(command, args)
         self.increment_pc(command['PC'])
-        # self.set_flags(command['flags'])
         return command['cycles']
 
     def set_register_8(self, reg, val):
@@ -195,23 +174,28 @@ class Cpu:
         }
         return fns[reg]()
 
-    def set_flag(self, flag):
+    def set_flags(self, flags):
         """
-        set a flag ('Z','N','H','C')
+        Apply a set of flags ('Z','N','H','C')
         Z - zero
         N - Previous op was add
         H - half carry (4th bit carried over)
         C - full carry (8th bit carried over)
         """
-        logging.debug('setting flag: {}'.format(flag))
-        flgs = {
-            'Z': 0b10000000,
-            'N': 0b01000000,
-            'H': 0b00100000,
-            'C': 0b00010000,
-        }
-        # TODO: check this
-        self.set_F(self.get_F() & flgs[flag])
+        reg_F = 0
+        # TODO Assuming flags from previous result are reset
+        if flags:
+            logging.debug('setting flags: {}'.format(flags))
+
+            flgs = {
+                'Z': 0b10000000,
+                'N': 0b01000000,
+                'H': 0b00100000,
+                'C': 0b00010000,
+            }
+            for flag in flags:
+                reg_F = reg_F | flgs[flag]
+        self.set_F(reg_F)
 
     # 8-bit setters
     def set_A(self, val):
@@ -317,6 +301,7 @@ class Cpu:
         """
         nn = args[0]
         self.set_HL(nn)
+        self.set_flags(False)
 
     def LD_16_SP_nn(self, args):
         """
@@ -324,6 +309,7 @@ class Cpu:
         """
         nn = args[0]
         self.set_SP(nn)
+        self.set_flags(False)
 
     def LD_16_A_iHL_dec(self, args):
         """
@@ -334,6 +320,7 @@ class Cpu:
         mem_address = self.get_HL()
         self.mem.write_byte(mem_address, a_val)
         self.set_register_16('HL', mem_address - 1)
+        self.set_flags(False)
 
     def XOR_A_n(self, args):
         """
@@ -345,5 +332,5 @@ class Cpu:
 
         result = self.get_A() ^ self.get_register_8(register)
         if result == 0:
-            self.set_flag('Z')
+            self.set_flags(['Z'])
         self.set_A(result)

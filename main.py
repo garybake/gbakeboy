@@ -3,18 +3,16 @@
 import logging
 import sys
 
-from gbakeboy import Motherboard
+from gbakeboy import Motherboard, utils
 
 
 def loop(gb):
     cycles = 0
-    gb.cpu.print_registers()
+    # gb.cpu.print_registers()
     for i in range(1, 5):
-        logging.debug('--------tick {}'.format(i))
+        utils.log_h2('tick {}'.format(i))
         cycles += gb.tick()
         gb.cpu.print_registers()
-        # cycles += gb.tick()
-        # gb.cpu.print_registers()
 
     logging.debug('{} cycles executed.'.format(cycles))
 
@@ -39,4 +37,5 @@ def main(argv):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
+    utils.log_h1('START')
     main(sys.argv)

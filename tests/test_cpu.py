@@ -3,6 +3,7 @@ import unittest
 from gbakeboy import Cpu
 from gbakeboy import Memory
 from gbakeboy import hex2int as h2i
+from gbakeboy import print_bin_8
 
 
 class test_cpu(unittest.TestCase):
@@ -10,6 +11,15 @@ class test_cpu(unittest.TestCase):
     def setUp(self):
         mem = Memory()
         self.cpu = Cpu(mem)
+
+    def clear_registers(self):
+        cpu = self.cpu
+        cpu.set_register_16('AF', 0)
+        cpu.set_register_16('BC', 0)
+        cpu.set_register_16('DE', 0)
+        cpu.set_register_16('HL', 0)
+        cpu.set_register_16('SP', 0)
+        cpu.set_register_16('PC', 0)
 
     def test_init(self):
         cpu = self.cpu
@@ -31,10 +41,3 @@ class test_cpu(unittest.TestCase):
 
         self.assertEqual(cpu.SP, h2i("FFFE"))
         self.assertEqual(cpu.PC, h2i("0"))
-
-    # def test_flags(self):
-    #     cpu = self.cpu
-    #     flags = cpu.get_F()
-    #     flags_string = '{0:b}'.format(flags)
-    #     # print('Flags: {}'.format(flags))
-    #     self.assertEqual(flags_string, "gary")
