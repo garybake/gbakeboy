@@ -10,7 +10,7 @@ def loop(gb):
     cycles = 0
     # gb.cpu.print_registers()
     for i in range(1, 5):
-        utils.log_h2('tick {}'.format(i))
+        utils.log_h2('Tick {}'.format(i))
         cycles += gb.tick()
         gb.cpu.print_registers()
 

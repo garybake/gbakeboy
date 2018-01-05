@@ -24,8 +24,8 @@ class Motherboard:
 
         self.mem.load(boot, h2i('0000'))
 
-    def load_rom(self, rom, location):
-        pass
+    # def load_rom(self, rom, location):
+    #     pass
 
     def tick(self):
         cycles = self.cpu.execute()

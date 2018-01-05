@@ -43,13 +43,13 @@ class Memory:
     def memprint(self, offset, bytes, mode='hex'):
         if mode == 'hex':
             for i in range(0, bytes, 2):
-                print('{0:X}:\t {1:02X}\t{2:02X}'.format(i+offset, self.memory[i+offset], self.memory[i+1+offset]))
+                logging.info('{0:X}:\t {1:02X}\t{2:02X}'.format(i+offset, self.memory[i+offset], self.memory[i+1+offset]))
         elif mode == 'bin':
             for i in range(0, bytes):
-                print('{0:X}:\t {1:08b}'.format(i+offset, self.memory[i+offset]))
+                logging.info('{0:X}:\t {1:08b}'.format(i+offset, self.memory[i+offset]))
 
     def memprintat(self, offset, mode='hex'):
         if mode == 'hex':
-            print('{0:X}:\t {1:x}'.format(offset, self.memory[offset]))
+            logging.info('{0:X}:\t {1:x}'.format(offset, self.memory[offset]))
         elif mode == 'bin':
-            print('{0:X}:\t {2:08b}'.format(offset, self.memory[offset]))
+            logging.info('{0:X}:\t {2:08b}'.format(offset, self.memory[offset]))
