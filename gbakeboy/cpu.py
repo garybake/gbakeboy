@@ -46,14 +46,29 @@ class Cpu:
             0x32: {  # 50
                 'fn': self.LD_16_A_iHL_dec,
                 'immediate_16': True,
-                'cycles': 12,
-                'PC': 3
+                'cycles': 8,
+                'PC': 1
             },
             0xAF: {  # 175
                 'fn': self.XOR_A_n,
                 'register': 'A',
                 'cycles': 4,
                 'PC': 1
+            },
+            0xCB: {  # 203
+                'fn': self.PREFIX_CB,
+                'immediate_8': True,
+                'cycles': 4,
+                'PC': 1
+            }
+        }
+
+        self.cb_prefix_instructions = {
+            0x7C: {  # 124
+                'fn': self.CB_Bit_7_H,
+                'register': 'A',
+                'cycles': 8,
+                'PC': 2
             }
         }
 
@@ -334,3 +349,15 @@ class Cpu:
         if result == 0:
             self.set_flags(['Z'])
         self.set_A(result)
+
+    def PREFIX_CB(self, args):
+        """
+        """
+        nn = args[0]
+        prefix_func = self.cb_prefix_instructions[nn]['fn']
+        prefix_func()
+
+    def CB_Bit_7_H(self):
+        """
+        """
+        logging.debug('*** set bit 7 of H')
