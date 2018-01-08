@@ -1,6 +1,6 @@
 import logging
 from .utils import hex2int as h2i
-from .utils import print_bin_16, print_bin_8
+from .utils import print_bin_16, print_bin_8, get_bit_value
 
 
 class Cpu:
@@ -352,6 +352,7 @@ class Cpu:
 
     def PREFIX_CB(self, args):
         """
+        For instructions with a prefix of CB
         """
         nn = args[0]
         prefix_func = self.cb_prefix_instructions[nn]['fn']
@@ -359,5 +360,11 @@ class Cpu:
 
     def CB_Bit_7_H(self):
         """
+        Get 7th bit of H
+        Set Z flag if zero
         """
-        logging.debug('*** set bit 7 of H')
+        H_bit7 = get_bit_value(self.H, 7)
+        if H_bit7:
+            self.set_flags([])
+        else:
+            self.set_flags(['Z'])

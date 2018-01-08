@@ -39,3 +39,12 @@ def print_bin_8(val):
     Print 8 bit int in binary
     """
     return "{0:b}".format(val).zfill(8)
+
+
+def get_bit_value(val, place):
+    """
+    Return the truthness of the bit in place place
+    from 8 or 16 bit val
+    """
+    place_val = 2**place
+    return val & place_val != 0
