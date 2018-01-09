@@ -31,6 +31,12 @@ class Cpu:
         self.print_registers()
 
         self.instructions = {
+            0x20: {  # 32
+                'fn': self.JR_NZ_8,
+                'immediate_8': True,
+                'cycles': 12,  # TODO or 18
+                'PC': 2
+            },
             0x21: {  # 33
                 'fn': self.LD_16_HL_nn,
                 'immediate_16': True,
@@ -59,10 +65,11 @@ class Cpu:
                 'fn': self.PREFIX_CB,
                 'immediate_8': True,
                 'cycles': 4,
-                'PC': 1
+                'PC': 2
             }
         }
 
+        # TODO fix CP cycles and remove PC?
         self.cb_prefix_instructions = {
             0x7C: {  # 124
                 'fn': self.CB_Bit_7_H,
@@ -124,7 +131,7 @@ class Cpu:
         Execute the next instruction
         """
         instr = self.get_next_instruction()
-        # logging.debug(hex(instr))
+        logging.debug(hex(instr))
         command = self.instructions[instr]
         args = self.get_additional_instructions(command)
         logging.debug('Command: {} {} {}'.format(hex(instr), command['fn'].__name__, args))
@@ -211,6 +218,26 @@ class Cpu:
             for flag in flags:
                 reg_F = reg_F | flgs[flag]
         self.set_F(reg_F)
+
+    def get_flag(self, flag):
+        """
+        Get flag value
+        Z - zero
+        N - Previous op was add
+        H - half carry (4th bit carried over)
+        C - full carry (8th bit carried over)
+        """
+
+        flgs = {
+            'Z': 7,
+            'N': 6,
+            'H': 5,
+            'C': 4,
+        }
+
+        flag_value = get_bit_value(self.F, flgs[flag])
+        logging.debug('Flag {} is {}'.format(flag, flag_value))
+        return flag_value is 1
 
     # 8-bit setters
     def set_A(self, val):
@@ -310,8 +337,21 @@ class Cpu:
 
     # Instructions
 
+    def JR_NZ_8(self, args):
+        """
+        0x20
+        """
+        logging.debug('running JR_NZ_8')
+        logging.debug(hex(args[0]))
+        is_zero_set = self.get_flag('Z')
+        logging.debug(is_zero_set)
+        if not is_zero_set:
+            logging.debug('Jumping')
+
+
     def LD_16_HL_nn(self, args):
         """
+        0x21
         Load 16 bit value into HL
         """
         nn = args[0]
@@ -320,6 +360,7 @@ class Cpu:
 
     def LD_16_SP_nn(self, args):
         """
+        0x31
         Load value into SP
         """
         nn = args[0]
@@ -328,6 +369,7 @@ class Cpu:
 
     def LD_16_A_iHL_dec(self, args):
         """
+        0x32
         Load register ‘A‘ to the memory address pointed to by ‘HL‘ (write 0 to 0x9FFF),
         and then decrement the value of ‘HL‘ (from 0x9FFF to 0x9FFE).
         """
@@ -339,6 +381,7 @@ class Cpu:
 
     def XOR_A_n(self, args):
         """
+        0xAF
         XOR A with another register
         Store the result in A
         (XOR with self is 0)
@@ -352,14 +395,18 @@ class Cpu:
 
     def PREFIX_CB(self, args):
         """
+        0xCB
         For instructions with a prefix of CB
         """
         nn = args[0]
         prefix_func = self.cb_prefix_instructions[nn]['fn']
         prefix_func()
 
+    # CP Prefix instructions
+
     def CB_Bit_7_H(self):
         """
+        0xCB 0x7C
         Get 7th bit of H
         Set Z flag if zero
         """

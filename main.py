@@ -9,7 +9,7 @@ from gbakeboy import Motherboard, utils
 def loop(gb):
     cycles = 0
     # gb.cpu.print_registers()
-    for i in range(1, 6):
+    for i in range(1, 7):
         utils.log_h2('Tick {}'.format(i))
         cycles += gb.tick()
         gb.cpu.print_registers()
