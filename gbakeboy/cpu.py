@@ -1,6 +1,6 @@
 import logging
 from .utils import hex2int as h2i
-from .utils import print_bin_16, print_bin_8, get_bit_value
+from .utils import print_bin_16, print_bin_8, get_bit_value, twos_comp_8
 
 
 class Cpu:
@@ -118,7 +118,7 @@ class Cpu:
         Execute the supplied command using the args
         """
         fn = command['fn']
-        fn(args)
+        return fn(args)
 
     def increment_pc(self, offset):
         """
@@ -136,8 +136,9 @@ class Cpu:
         args = self.get_additional_instructions(command)
         logging.debug('Command: {} {} {}'.format(hex(instr), command['fn'].__name__, args))
 
-        self.execute_command(command, args)
-        self.increment_pc(command['PC'])
+        extra = self.execute_command(command, args)
+        if extra is not "KEEP_PC":
+            self.increment_pc(command['PC'])
         return command['cycles']
 
     def set_register_8(self, reg, val):
@@ -342,12 +343,26 @@ class Cpu:
         0x20
         """
         logging.debug('running JR_NZ_8')
-        logging.debug(hex(args[0]))
-        is_zero_set = self.get_flag('Z')
-        logging.debug(is_zero_set)
-        if not is_zero_set:
+        # logging.debug(hex(args[0]))
+        is_Z_flag_set = self.get_flag('Z')
+        logging.debug(is_Z_flag_set)
+        if not is_Z_flag_set:
             logging.debug('Jumping')
+            address_for_next = self.get_PC() + 2
+            next_mem = self.mem.read_byte(self.get_PC())
 
+            # logging.debug('arg: {}'.format(hex(self.get_PC())))
+            # logging.debug('next_mem: {}'.format(hex(next_mem)))
+
+            jump_offset = twos_comp_8(args[0] + 0x100)
+            # logging.debug('Jump offset: {}'.format(hex(jump_offset)))
+            # logging.debug('address_for_next: {}'.format(hex(address_for_next)))
+
+            jump_two = address_for_next + jump_offset
+            # logging.debug('Jumping to: {}'.format(hex(jump_two)))
+            self.PC = jump_two
+            return "KEEP_PC"
+        return
 
     def LD_16_HL_nn(self, args):
         """
