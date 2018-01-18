@@ -366,15 +366,18 @@ class Cpu:
         Increment C
         set Z 0 H -
         """
-        new_c = self.get_C() + 1
-        logging.debug('new C: {}'.format(hex(new_c)))
-
         flags = []
+
+        # Half carry check
+        if (((1 & 0xf) + (self.get_C() & 0xf)) & 0x10) == 0x10:
+            flags.append('H')
+
+        new_c = self.get_C() + 1
+
         if new_c > 0xFF:
             new_c = 0
+            # TODO Is this how INC raises the Z flag?
             flags.append('Z')
-        if new_c > 0xF:
-            flags.append('H')
 
         self.set_C(new_c)
         self.set_flags(flags)
