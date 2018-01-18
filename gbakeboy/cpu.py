@@ -31,7 +31,12 @@ class Cpu:
         self.print_registers()
 
         self.instructions = {
-            0x0e: {  # 14
+            0x0C: {  # 12
+                'fn': self.INC_C,
+                'cycles': 4,
+                'PC': 1
+            },
+            0x0E: {  # 14
                 'fn': self.LD_C_8,
                 'immediate_8': True,
                 'cycles': 8,
@@ -61,6 +66,12 @@ class Cpu:
                 'cycles': 8,
                 'PC': 1
             },
+            0x3E: {  # 62
+                'fn': self.LD_A_8,
+                'immediate_8': True,
+                'cycles': 8,
+                'PC': 2
+            },
             0xAF: {  # 175
                 'fn': self.XOR_A_n,
                 'register': 'A',
@@ -72,6 +83,11 @@ class Cpu:
                 'immediate_8': True,
                 'cycles': 4,
                 'PC': 2
+            },
+            0xE2: {  # 226
+                'fn': self.LD_C_A,
+                'cycles': 8,
+                'PC': 1
             }
         }
 
@@ -344,9 +360,28 @@ class Cpu:
 
     # Instructions
 
+    def INC_C(self, args):
+        """
+        0x0C
+        Increment C
+        set Z 0 H -
+        """
+        new_c = self.get_C() + 1
+        logging.debug('new C: {}'.format(hex(new_c)))
+
+        flags = []
+        if new_c > 0xFF:
+            new_c = 0
+            flags.append('Z')
+        if new_c > 0xF:
+            flags.append('H')
+
+        self.set_C(new_c)
+        self.set_flags(flags)
+
     def LD_C_8(self, args):
         """
-        0x0e
+        0x0E
         Load 8 bit into C
         """
         nn = args[0]
@@ -399,6 +434,15 @@ class Cpu:
         self.set_register_16('HL', mem_address - 1)
         self.set_flags(False)
 
+    def LD_A_8(self, args):
+        """
+        0x3e
+        Load 8 bit into A
+        """
+        nn = args[0]
+        self.set_A(nn)
+        self.set_flags(False)
+
     def XOR_A_n(self, args):
         """
         0xAF
@@ -435,3 +479,15 @@ class Cpu:
             self.set_flags([])
         else:
             self.set_flags(['Z'])
+
+    def LD_C_A(self, args):
+        """
+        0xE2
+        LD ($FF00+C), A
+        Load A to address ($FF00 + C)
+        """
+        a_val = self.A
+        offset = 0xFF00
+        mem_address = offset + self.C
+        self.mem.write_byte(mem_address, a_val)
+        self.set_flags(False)
