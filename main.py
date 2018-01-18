@@ -5,14 +5,18 @@ import sys
 
 from gbakeboy import Motherboard, utils
 
+MAX_TICKS = 24578
+START_WATCHING = 24570
+
 
 def loop(gb):
     cycles = 0
-    # gb.cpu.print_registers()
-    for i in range(1, 26000):
-        utils.log_h2('Tick {}'.format(i))
+    for tick_count in range(1, MAX_TICKS):
         cycles += gb.tick()
-        # gb.cpu.print_registers()
+        if tick_count > START_WATCHING:
+            utils.log_h2('Tick {}'.format(tick_count-1))
+            logging.getLogger().setLevel(logging.DEBUG)
+            gb.cpu.print_registers()
 
     logging.debug('{} cycles executed.'.format(cycles))
 
@@ -36,6 +40,6 @@ def main(argv):
     loop(gb)
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     utils.log_h1('START')
     main(sys.argv)

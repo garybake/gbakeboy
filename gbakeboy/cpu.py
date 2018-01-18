@@ -238,7 +238,7 @@ class Cpu:
 
         flag_value = get_bit_value(self.F, flgs[flag])
         logging.debug('Flag {} is {}'.format(flag, flag_value))
-        return flag_value is 1
+        return flag_value == 1
 
     # 8-bit setters
     def set_A(self, val):
@@ -341,25 +341,15 @@ class Cpu:
     def JR_NZ_8(self, args):
         """
         0x20
+        Jump if zero flag is set
         """
-        logging.debug('running JR_NZ_8')
-        # logging.debug(hex(args[0]))
         is_Z_flag_set = self.get_flag('Z')
-        logging.debug(is_Z_flag_set)
         if not is_Z_flag_set:
-            logging.debug('Jumping')
             address_for_next = self.get_PC() + 2
-            next_mem = self.mem.read_byte(self.get_PC())
-
-            # logging.debug('arg: {}'.format(hex(self.get_PC())))
-            # logging.debug('next_mem: {}'.format(hex(next_mem)))
-
             jump_offset = twos_comp_8(args[0] + 0x100)
-            # logging.debug('Jump offset: {}'.format(hex(jump_offset)))
-            # logging.debug('address_for_next: {}'.format(hex(address_for_next)))
 
             jump_two = address_for_next + jump_offset
-            # logging.debug('Jumping to: {}'.format(hex(jump_two)))
+            logging.debug('Jumping to: {}'.format(hex(jump_two)))
             self.PC = jump_two
             return "KEEP_PC"
         return
