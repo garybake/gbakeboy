@@ -31,6 +31,12 @@ class Cpu:
         self.print_registers()
 
         self.instructions = {
+            0x0e: {  # 14
+                'fn': self.LD_C_8,
+                'immediate_8': True,
+                'cycles': 8,
+                'PC': 2
+            },
             0x20: {  # 32
                 'fn': self.JR_NZ_8,
                 'immediate_8': True,
@@ -337,6 +343,15 @@ class Cpu:
         return self.PC
 
     # Instructions
+
+    def LD_C_8(self, args):
+        """
+        0x0e
+        Load 8 bit into C
+        """
+        nn = args[0]
+        self.set_C(nn)
+        self.set_flags(False)
 
     def JR_NZ_8(self, args):
         """
