@@ -72,6 +72,12 @@ class Cpu:
                 'cycles': 8,
                 'PC': 2
             },
+            0x77: {  # 119
+                'fn': self.LD_HL_A,
+                'immediate_8': True,
+                'cycles': 8,
+                'PC': 1
+            },
             0xAF: {  # 175
                 'fn': self.XOR_A_n,
                 'register': 'A',
@@ -431,11 +437,9 @@ class Cpu:
         Load register ‘A‘ to the memory address pointed to by ‘HL‘ (write 0 to 0x9FFF),
         and then decrement the value of ‘HL‘ (from 0x9FFF to 0x9FFE).
         """
-        a_val = self.get_A()
+        self.LD_HL_A(args)
         mem_address = self.get_HL()
-        self.mem.write_byte(mem_address, a_val)
         self.set_register_16('HL', mem_address - 1)
-        self.set_flags(False)
 
     def LD_A_8(self, args):
         """
@@ -444,6 +448,16 @@ class Cpu:
         """
         nn = args[0]
         self.set_A(nn)
+        self.set_flags(False)
+
+    def LD_HL_A(self, args):
+        """
+        0x77
+        Load A to (HL)
+        """
+        a_val = self.get_A()
+        mem_address = self.get_HL()
+        self.mem.write_byte(mem_address, a_val)
         self.set_flags(False)
 
     def XOR_A_n(self, args):
