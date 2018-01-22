@@ -42,6 +42,12 @@ class Cpu:
                 'cycles': 8,
                 'PC': 2
             },
+            0x11: {  # 17
+                'fn': self.LD_DE_16,
+                'immediate_16': True,
+                'cycles': 12,
+                'PC': 3
+            },
             0x20: {  # 32
                 'fn': self.JR_NZ_8,
                 'immediate_8': True,
@@ -88,6 +94,12 @@ class Cpu:
                 'fn': self.PREFIX_CB,
                 'immediate_8': True,
                 'cycles': 4,
+                'PC': 2
+            },
+            0xE0: {  # 224
+                'fn': self.LDH_A_8,
+                'immediate_8': True,
+                'cycles': 12,
                 'PC': 2
             },
             0xE2: {  # 226
@@ -397,6 +409,17 @@ class Cpu:
         self.set_C(nn)
         self.set_flags(False)
 
+    def LD_DE_16(self, args):
+        """
+        0x11
+        Load 16 bit num to DE
+        """
+        nn = args[0]
+        logging.debug('args: {}'.format(hex(nn)))
+        self.set_DE(nn)
+        # self.set_C(nn)
+        self.set_flags(False)
+
     def JR_NZ_8(self, args):
         """
         0x20
@@ -496,6 +519,19 @@ class Cpu:
             self.set_flags([])
         else:
             self.set_flags(['Z'])
+
+    def LDH_A_8(self, args):
+        """
+        0xE0
+        LD A, ($FF00+nn)
+        Load A to address ($FF00 + nn)
+        """
+        nn = args[0]
+        a_val = self.A
+        offset = 0xFF00
+        mem_address = offset + nn
+        self.mem.write_byte(mem_address, a_val)
+        self.set_flags(False)
 
     def LD_C_A(self, args):
         """
