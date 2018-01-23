@@ -32,6 +32,8 @@ class Memory:
         # gets an 16bit int addr and returns the 8bit int content of memory
         if addr >= MAX_MEMORY_BYTES or addr < 0:
             raise MemoryError('Attempt to read outside of Memory range')
+        val = self.memory[addr]
+        logging.debug('reading mem {0:X} is val {1:X}'.format(addr, val))
         return self.memory[addr]
 
     def read_word(self, addr):

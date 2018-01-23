@@ -56,3 +56,14 @@ def twos_comp_8(val):
     if (val & (1 << (bits - 1))) != 0: # if sign bit is set e.g., 8bit: 128-255
         val = val - (1 << bits)        # compute negative value
     return val
+
+def hex_array(arr):
+    # return [hex(i) for i in arr]
+    # TODO: fix this
+    ret = []
+    for a in arr:
+        if type(a) is str:
+            ret.append(a)
+        else:
+            ret.append(hex(a))
+    return ret

@@ -1,6 +1,6 @@
 import logging
 from .utils import hex2int as h2i
-from .utils import print_bin_16, print_bin_8, get_bit_value, twos_comp_8
+from .utils import print_bin_16, print_bin_8, get_bit_value, twos_comp_8, hex_array
 
 
 class Cpu:
@@ -47,6 +47,11 @@ class Cpu:
                 'immediate_16': True,
                 'cycles': 12,
                 'PC': 3
+            },
+            0x1A: {  # 26
+                'fn': self.LD_A_DE_8,
+                'cycles': 8,
+                'PC': 1
             },
             0x20: {  # 32
                 'fn': self.JR_NZ_8,
@@ -174,7 +179,7 @@ class Cpu:
         logging.debug(hex(instr))
         command = self.instructions[instr]
         args = self.get_additional_instructions(command)
-        logging.debug('Command: {} {} {}'.format(hex(instr), command['fn'].__name__, args))
+        logging.debug('Command: {} {} {}'.format(hex(instr), command['fn'].__name__, hex_array(args)))
 
         extra = self.execute_command(command, args)
         if extra is not "KEEP_PC":
@@ -415,10 +420,18 @@ class Cpu:
         Load 16 bit num to DE
         """
         nn = args[0]
-        logging.debug('args: {}'.format(hex(nn)))
         self.set_DE(nn)
-        # self.set_C(nn)
         self.set_flags(False)
+
+    def LD_A_DE_8(self, args):
+        """
+        0x1A
+        Load from memory pointed at by DE
+        into A
+        """
+        mem_loc = self.get_DE()
+        mem_val = self.mem.read_byte(mem_loc)
+        self.set_A(mem_val)
 
     def JR_NZ_8(self, args):
         """
@@ -489,6 +502,7 @@ class Cpu:
         XOR A with another register
         Store the result in A
         (XOR with self is 0)
+        TODO: Determine register from args
         """
         register = args[0]
 
