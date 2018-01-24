@@ -11,7 +11,7 @@ class Memory:
             self.memory[i] = 0
 
     def load(self, data, offset, start=0, end=0xFFFF):
-        logging.debug("loading data into loc %X and up." % offset)
+        logging.info("loading data into loc %X and up." % offset)
         for i in range(max(0, start), min(len(data), end)):
             addr = int(i+offset)
             if addr >= MAX_MEMORY_BYTES:

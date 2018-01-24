@@ -18,7 +18,7 @@ class Motherboard:
         self.load_bios()
 
     def load_bios(self):
-        logging.debug('loading bios rom')
+        logging.info('loading bios rom')
         with open(BIOS_FILE, mode='rb') as f:
             boot = f.read()
 
@@ -30,3 +30,7 @@ class Motherboard:
     def tick(self):
         cycles = self.cpu.execute()
         return cycles
+
+    def load_cartridge(self, cartridge):
+        logging.info('loading cartridge')
+        self.mem.load(cartridge.rom_data, 0xFF + 1, end=0x014F)
