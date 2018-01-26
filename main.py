@@ -5,7 +5,7 @@ import sys
 
 from gbakeboy import Motherboard, utils, Cartridge
 
-START_WATCHING = 24578
+START_WATCHING = 24592
 MAX_TICKS = 24596
 
 

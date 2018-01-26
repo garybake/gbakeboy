@@ -30,4 +30,4 @@ class Motherboard:
 
     def load_cartridge(self, cartridge):
         logging.info('loading cartridge')
-        self.mem.load(cartridge.rom_data, 0xFF + 1, end=0x014F)
+        self.mem.load_cartridge(cartridge)

@@ -5,6 +5,7 @@ from .settings import MAX_MEMORY_BYTES
 
 class Memory:
     memory = bytearray(MAX_MEMORY_BYTES)
+    cartridge = None
 
     def __init__(self):
         for i in range(0, len(self.memory)):
@@ -32,6 +33,12 @@ class Memory:
         # gets an 16bit int addr and returns the 8bit int content of memory
         if addr >= MAX_MEMORY_BYTES or addr < 0:
             raise MemoryError('Attempt to read outside of Memory range')
+
+        if self.cartridge and addr > 0xFF and addr < 0x4000:
+            # Cartridge ROM
+            # TODO remove bios rom mask
+            return self.cartridge.read_byte(addr)
+
         val = self.memory[addr]
         logging.debug('reading mem {0:X} is val {1:X}'.format(addr, val))
         return self.memory[addr]
@@ -55,3 +62,7 @@ class Memory:
             logging.info('{0:X}:\t {1:x}'.format(offset, self.memory[offset]))
         elif mode == 'bin':
             logging.info('{0:X}:\t {2:08b}'.format(offset, self.memory[offset]))
+
+    def load_cartridge(self, cartridge):
+        self.cartridge = cartridge
+        # self.load(cartridge.memory, 0xFF + 1, end=0x014F)
