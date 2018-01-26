@@ -143,7 +143,7 @@ class Cpu:
         """
         Get the instruction opcode from the PC
         """
-        return self.mem.read_byte(self.get_PC())
+        return self.mem.read_byte(self.get_PC(), verbose=False)
 
     def get_additional_instructions(self, command):
         """

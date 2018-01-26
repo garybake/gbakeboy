@@ -19,17 +19,24 @@ class Memory:
                 raise MemoryError
             self.memory[addr] = data[i]
 
-    def write_byte(self, addr, val):
+    def write_byte(self, addr, val, verbose=True):
         if addr >= MAX_MEMORY_BYTES or addr < 0:
             raise MemoryError('Attempt to read outside of Memory range: {}'.format(addr))
-        logging.debug('setting mem {0:X} to val {1:X}'.format(addr, val))
+
+        if self.cartridge and addr > 0xFF and addr < 0x4000:
+            # Cartridge ROM
+            # TODO remove bios rom mask
+            return self.cartridge.write_byte(addr, verbose)
+
+        if verbose:
+            logging.debug('setting mem {0:X} to val {1:X}'.format(addr, val))
         self.memory[addr] = val
 
     def write_word(self, addr, val):
         # TODO
         pass
 
-    def read_byte(self, addr):
+    def read_byte(self, addr, verbose=True):
         # gets an 16bit int addr and returns the 8bit int content of memory
         if addr >= MAX_MEMORY_BYTES or addr < 0:
             raise MemoryError('Attempt to read outside of Memory range')
@@ -37,13 +44,15 @@ class Memory:
         if self.cartridge and addr > 0xFF and addr < 0x4000:
             # Cartridge ROM
             # TODO remove bios rom mask
-            return self.cartridge.read_byte(addr)
+            return self.cartridge.read_byte(addr, verbose)
 
         val = self.memory[addr]
-        logging.debug('reading mem {0:X} is val {1:X}'.format(addr, val))
+        if verbose:
+            logging.debug('reading unallocated mem {0:X} is val {1:X}'.format(addr, val))
         return self.memory[addr]
 
     def read_word(self, addr):
+        # TODO
         # gets an 16bit int addr and returns the 16 bit int content of memory
         if addr >= MAX_MEMORY_BYTES or addr < 0:
             raise MemoryError('Attempt to read outside of Memory range')
@@ -52,7 +61,7 @@ class Memory:
     def memprint(self, offset, bytes, mode='hex'):
         if mode == 'hex':
             for i in range(0, bytes, 2):
-                logging.info('{0:X}:\t {1:02X}\t{2:02X}'.format(i+offset, self.memory[i+offset], self.memory[i+1+offset]))
+                logging.info('{0:X}:\t {1:02X}\t{2:02X}'.format(i+offset, self.read_byte(i+offset, False), self.read_byte(i+1+offset, False)))
         elif mode == 'bin':
             for i in range(0, bytes):
                 logging.info('{0:X}:\t {1:08b}'.format(i+offset, self.memory[i+offset]))
