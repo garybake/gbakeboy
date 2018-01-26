@@ -45,10 +45,14 @@ class RamDevice:
         for addr in range(self.start_address, min(len(data) + self.start_address, self.end_address)):
             self.memory[addr] = data[addr]
 
-    # def memprint(self, offset, bytes, mode='hex'):
-    #     if mode == 'hex':
-    #         for i in range(0, bytes, 2):
-    #             logging.info('{0:X}:\t {1:02X}\t{2:02X}'.format(i+offset, self.memory[i+offset], self.memory[i+1+offset]))
-    #     elif mode == 'bin':
-    #         for i in range(0, bytes):
-    #             logging.info('{0:X}:\t {1:08b}'.format(i+offset, self.memory[i+offset]))
+    def mem_print(self, offset=None, bytes=None, mode='hex'):
+        if not offset:
+            offset = self.start_address
+        if not bytes:
+            bytes = self.size - 1
+        if mode == 'hex':
+            for i in range(0, bytes, 2):
+                logging.info('{0:X}:\t {1:02X}\t{2:02X}'.format(i+offset, self.memory[i], self.memory[i+1]))
+        elif mode == 'bin':
+            for i in range(0, bytes):
+                logging.info('{0:X}:\t {1:08b}'.format(i+offset, self.memory[i], self.memory[i+1]))

@@ -64,7 +64,7 @@ class Memory:
             raise MemoryError('Attempt to read outside of Memory range')
         return ((self.memory[addr+1] << 8) | self.memory[addr])
 
-    def memprint(self, offset, bytes, mode='hex'):
+    def mem_print(self, offset, bytes, mode='hex'):
         if mode == 'hex':
             for i in range(0, bytes, 2):
                 logging.info('{0:X}:\t {1:02X}\t{2:02X}'.format(i+offset, self.read_byte(i+offset, False), self.read_byte(i+1+offset, False)))
