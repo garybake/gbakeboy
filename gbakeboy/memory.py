@@ -1,11 +1,13 @@
 import logging
 from .utils import hex2int as h2i
 from .settings import MAX_MEMORY_BYTES
+from .sound import Sound
 
 
 class Memory:
     memory = bytearray(MAX_MEMORY_BYTES)
     cartridge = None
+    sound = Sound()
 
     def __init__(self):
         for i in range(0, len(self.memory)):
@@ -27,6 +29,8 @@ class Memory:
             # Cartridge ROM
             # TODO remove bios rom mask
             return self.cartridge.write_byte(addr, verbose)
+        elif self.cartridge and addr > 0xFF10 and addr < 0xFF3F:
+            return self.sound.write_byte(addr, verbose)
 
         if verbose:
             logging.debug('setting mem {0:X} to val {1:X}'.format(addr, val))
@@ -45,13 +49,15 @@ class Memory:
             # Cartridge ROM
             # TODO remove bios rom mask
             return self.cartridge.read_byte(addr, verbose)
+        elif self.cartridge and addr > 0xFF10 and addr < 0xFF3F:
+            return self.sound.read_byte(addr, verbose)
 
         val = self.memory[addr]
         if verbose:
             logging.debug('reading unallocated mem {0:X} is val {1:X}'.format(addr, val))
         return self.memory[addr]
 
-    def read_word(self, addr):
+    def read_word(self, addr, verbose=True):
         # TODO
         # gets an 16bit int addr and returns the 16 bit int content of memory
         if addr >= MAX_MEMORY_BYTES or addr < 0:
@@ -74,4 +80,3 @@ class Memory:
 
     def load_cartridge(self, cartridge):
         self.cartridge = cartridge
-        # self.load(cartridge.memory, 0xFF + 1, end=0x014F)

@@ -151,9 +151,9 @@ class Cpu:
         """
         args = []
         if command.get('immediate_16', False):
-            args.append(self.mem.read_word(self.get_PC()+1))
+            args.append(self.mem.read_word(self.get_PC()+1, verbose=False))
         elif command.get('immediate_8', False):
-            args.append(self.mem.read_byte(self.get_PC()+1))
+            args.append(self.mem.read_byte(self.get_PC()+1, verbose=False))
         elif command.get('register', False):
             args.append(command['register'])
         return args
