@@ -6,19 +6,19 @@ import sys
 from gbakeboy import Motherboard, utils, Cartridge
 
 START_WATCHING = 24570
-MAX_TICKS = 24596
+MAX_TICKS = 24600
 
 
 def loop(gb):
     cycles = 0
-    for tick_count in range(1, MAX_TICKS):
-        cycles += gb.tick()
-        if tick_count > START_WATCHING:
-            utils.log_h2('Tick {}'.format(tick_count-1))
-            logging.getLogger().setLevel(logging.DEBUG)
-            gb.cpu.print_registers()
+    # for tick_count in range(1, MAX_TICKS):
+    #     cycles += gb.tick()
+    #     if tick_count > START_WATCHING:
+    #         utils.log_h2('Tick {}'.format(tick_count-1))
+    #         logging.getLogger().setLevel(logging.DEBUG)
+    #         gb.cpu.print_registers()
 
-    logging.debug('{} cycles executed.'.format(cycles))
+    # logging.debug('{} cycles executed.'.format(cycles))
 
     # gb.cpu.mem.sound.mem_print()
     # gb.cpu.mem.cartridge.mem_print()

@@ -29,6 +29,14 @@ class RamDevice:
             logging.debug('reading {0} mem {1:X} is val {2:X}'.format(self.name, addr, val))
         return self.memory[local_addr]
 
+    def read_word(self, addr, verbose=True):
+        # TODO
+        # gets an 16bit int addr and returns the 16 bit int content of memory
+        # if addr >= MAX_MEMORY_BYTES or addr < 0:
+        #     raise MemoryError('Attempt to read outside of Memory range')
+        local_addr = addr - self.start_address
+        return ((self.memory[local_addr+1] << 8) | self.memory[local_addr])
+
     def write_byte(self, addr, val):
         if addr < self.start_address or addr >= self.end_address:
             raise MemoryError('Attempt to read outside of Memory range: {}'.format(addr))
@@ -56,3 +64,7 @@ class RamDevice:
         elif mode == 'bin':
             for i in range(0, bytes):
                 logging.info('{0:X}:\t {1:08b}'.format(i+offset, self.memory[i], self.memory[i+1]))
+
+    def read_text(self, start, end):
+        title_array = [chr(self.read_byte(addr)) for addr in range(start, end)]
+        return ''.join(title_array)
