@@ -101,6 +101,12 @@ class Cpu:
                 'cycles': 4,
                 'PC': 2
             },
+            0xCD: {  # 205
+                'fn': self.CALL_A_16,
+                'immediate_16': True,
+                'cycles': 12,
+                'PC': 3
+            },
             0xE0: {  # 224
                 'fn': self.LDH_A_8,
                 'immediate_8': True,
@@ -533,6 +539,20 @@ class Cpu:
             self.set_flags([])
         else:
             self.set_flags(['Z'])
+
+    def CALL_A_16(self, args):
+        """
+        0xCD
+        Call nn nn
+        Push next PC to address SP points to
+        Set PC to address nn
+        """
+        nn = args[0]
+        logging.debug(hex(nn))
+
+        # Push next PC to address SP points to
+        # Set PC to address we read (0x0095)
+        # RET will bring us back
 
     def LDH_A_8(self, args):
         """
