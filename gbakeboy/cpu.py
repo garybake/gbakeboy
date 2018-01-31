@@ -526,33 +526,29 @@ class Cpu:
         prefix_func = self.cb_prefix_instructions[nn]['fn']
         prefix_func()
 
-    # CP Prefix instructions
-
-    def CB_Bit_7_H(self):
-        """
-        0xCB 0x7C
-        Get 7th bit of H
-        Set Z flag if zero
-        """
-        H_bit7 = get_bit_value(self.H, 7)
-        if H_bit7:
-            self.set_flags([])
-        else:
-            self.set_flags(['Z'])
-
     def CALL_A_16(self, args):
         """
         0xCD
         Call nn nn
-        Push next PC to address SP points to
-        Set PC to address nn
+
+        Jumps to and address
+        Stores old PC on stack
+
+        SP = SP - 2
+        (SP)=PC
+        PC=nn
+
         """
         nn = args[0]
         logging.debug(hex(nn))
+        sp = self.get_SP()  - 2
+        self.set_SP(sp)
 
-        # Push next PC to address SP points to
-        # Set PC to address we read (0x0095)
-        # RET will bring us back
+        pc = self.get_PC()
+        self.mem.write_word(sp, pc)
+
+        self.set_PC(nn)
+        return "KEEP_PC"
 
     def LDH_A_8(self, args):
         """
@@ -578,3 +574,18 @@ class Cpu:
         mem_address = offset + self.C
         self.mem.write_byte(mem_address, a_val)
         self.set_flags(False)
+
+
+    # CP Prefix instructions
+
+    def CB_Bit_7_H(self):
+        """
+        0xCB 0x7C
+        Get 7th bit of H
+        Set Z flag if zero
+        """
+        H_bit7 = get_bit_value(self.H, 7)
+        if H_bit7:
+            self.set_flags([])
+        else:
+            self.set_flags(['Z'])

@@ -21,8 +21,6 @@ def loop(gb):
     logging.debug('{} cycles executed.'.format(cycles))
 
     # gb.cpu.mem.sound.mem_print()
-    # gb.cpu.mem.cartridge.mem_print()
-
 
 def main(argv):
     logging.debug('initialising...')
