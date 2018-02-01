@@ -31,6 +31,12 @@ class Cpu:
         self.print_registers()
 
         self.instructions = {
+            0x06: {  # 6
+                'fn': self.LD_B_d8,
+                'immediate_8': True,
+                'cycles': 8,
+                'PC': 2
+            },
             0x0C: {  # 12
                 'fn': self.INC_C,
                 'cycles': 4,
@@ -83,6 +89,11 @@ class Cpu:
                 'cycles': 8,
                 'PC': 2
             },
+            0x4F: {  # 79
+                'fn': self.LD_C_A,
+                'cycles': 4,
+                'PC': 1
+            },
             0x77: {  # 119
                 'fn': self.LD_HL_A,
                 'immediate_8': True,
@@ -95,6 +106,11 @@ class Cpu:
                 'cycles': 4,
                 'PC': 1
             },
+            0xC5: {  # 197
+                'fn': self.PUSH_BC,
+                'cycles': 16,
+                'PC': 1
+            },
             0xCB: {  # 203
                 'fn': self.PREFIX_CB,
                 'immediate_8': True,
@@ -102,7 +118,7 @@ class Cpu:
                 'PC': 2
             },
             0xCD: {  # 205
-                'fn': self.CALL_A_16,
+                'fn': self.CALL_16,
                 'immediate_16': True,
                 'cycles': 12,
                 'PC': 3
@@ -114,7 +130,7 @@ class Cpu:
                 'PC': 2
             },
             0xE2: {  # 226
-                'fn': self.LD_C_A,
+                'fn': self.LD_iC_A,
                 'cycles': 8,
                 'PC': 1
             }
@@ -247,6 +263,19 @@ class Cpu:
             'PC': self.get_PC
         }
         return fns[reg]()
+
+    def push_to_stack(self, val=None):
+        """
+        Pushes a value to the stack
+        Uses the SP by default
+        SP = SP - 2
+        (SP)=PC
+        """
+        sp = self.get_SP() - 2
+        self.set_SP(sp)
+        if not val:
+            val = self.get_PC()
+        self.mem.write_word(sp, val)
 
     def set_flags(self, flags):
         """
@@ -389,6 +418,15 @@ class Cpu:
 
     # Instructions
 
+    def LD_B_d8(self, args):
+        """
+        0x06
+        LD B, d8
+        """
+        nn = args[0]
+        self.set_B(nn)
+        self.set_flags(False)
+
     def INC_C(self, args):
         """
         0x0C
@@ -492,6 +530,14 @@ class Cpu:
         self.set_A(nn)
         self.set_flags(False)
 
+    def LD_C_A(self, args):
+        """
+        0x4F
+        Load contents of A into C
+        """
+        self.set_C(self.get_A())
+        self.set_flags(False)
+
     def LD_HL_A(self, args):
         """
         0x77
@@ -526,29 +572,32 @@ class Cpu:
         prefix_func = self.cb_prefix_instructions[nn]['fn']
         prefix_func()
 
-    def CALL_A_16(self, args):
+    def CALL_16(self, args):
         """
         0xCD
         Call nn nn
-
-        Jumps to and address
+        Jumps to an address
         Stores old PC on stack
 
-        SP = SP - 2
-        (SP)=PC
+
         PC=nn
 
         """
         nn = args[0]
-        logging.debug(hex(nn))
-        sp = self.get_SP()  - 2
-        self.set_SP(sp)
-
-        pc = self.get_PC()
-        self.mem.write_word(sp, pc)
+        logging.debug('Jumping to {}'.format(hex(nn)))
+        self.push_to_stack()
 
         self.set_PC(nn)
         return "KEEP_PC"
+
+    def PUSH_BC(self, args):
+        """
+        0xC5
+        Push BC to the stack
+        """
+        b = self.get_BC()
+        self.push_to_stack(b)
+        self.set_flags(False)
 
     def LDH_A_8(self, args):
         """
@@ -563,7 +612,7 @@ class Cpu:
         self.mem.write_byte(mem_address, a_val)
         self.set_flags(False)
 
-    def LD_C_A(self, args):
+    def LD_iC_A(self, args):
         """
         0xE2
         LD ($FF00+C), A
@@ -574,7 +623,6 @@ class Cpu:
         mem_address = offset + self.C
         self.mem.write_byte(mem_address, a_val)
         self.set_flags(False)
-
 
     # CP Prefix instructions
 
