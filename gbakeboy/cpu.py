@@ -1,6 +1,6 @@
 import logging
 from .utils import hex2int as h2i
-from .utils import print_bin_16, print_bin_8, get_bit_value, twos_comp_8, hex_array
+from .utils import print_bin_16, print_bin_8, print_bin_16, get_bit_value, twos_comp_8, hex_array
 
 
 class Cpu:
@@ -138,6 +138,11 @@ class Cpu:
 
         # TODO fix CP cycles and remove PC?
         self.cb_prefix_instructions = {
+            0x11: {  # 124
+                'fn': self.RL_C,
+                'cycles': 8,
+                'PC': 2
+            },
             0x7C: {  # 124
                 'fn': self.CB_Bit_7_H,
                 'register': 'A',
@@ -625,6 +630,27 @@ class Cpu:
         self.set_flags(False)
 
     # CP Prefix instructions
+
+    def RL_C(self):
+        """
+        0xCB 0x11
+        Rotate C register left by 1 bit
+        Set Carry flag
+        """
+        c = self.get_C()
+        carry = self.get_flag('C')
+        new_c = c << 1
+        if carry:
+            mask = 0b00000001
+            new_c = new_c | mask
+        new_carry = get_bit_value(new_c, 7)
+        if new_carry:
+            mask  = 0b011111111
+            new_c = new_c & mask
+            self.set_flags(['C'])
+        else:
+            self.set_flags(False)
+        self.set_C(new_c)
 
     def CB_Bit_7_H(self):
         """
