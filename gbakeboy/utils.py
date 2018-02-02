@@ -57,6 +57,7 @@ def twos_comp_8(val):
         val = val - (1 << bits)        # compute negative value
     return val
 
+
 def hex_array(arr):
     # return [hex(i) for i in arr]
     # TODO: fix this

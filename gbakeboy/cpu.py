@@ -54,6 +54,11 @@ class Cpu:
                 'cycles': 12,
                 'PC': 3
             },
+            0x17: {  # 23
+                'fn': self.RL_A,
+                'cycles': 4,
+                'PC': 1
+            },
             0x1A: {  # 26
                 'fn': self.LD_A_DE_8,
                 'cycles': 8,
@@ -305,6 +310,13 @@ class Cpu:
                 reg_F = reg_F | flgs[flag]
         self.set_F(reg_F)
 
+    def clear_flags(self):
+        """
+        Clear all flags
+        TODO: maybe better to add an unset funct
+        """
+        self.set_F(0)
+
     def get_flag(self, flag):
         """
         Get flag value
@@ -472,6 +484,29 @@ class Cpu:
         self.set_DE(nn)
         self.set_flags(False)
 
+    def RL_A(self, args):
+        """
+        0x17
+        Rotate A left 1 bit
+        """
+        a = self.get_A()
+        carry = self.get_flag('C')
+        new_a = a << 1
+        if carry:
+            mask = 0b00000001
+            new_a = new_a | mask
+        new_carry = get_bit_value(new_a, 7)
+
+        self.clear_flags()
+        flags = []
+        if new_carry:
+            mask = 0b011111111
+            new_a = new_a & mask
+            flags.append('C')
+
+        self.set_A(new_a)
+        self.set_flags(flags)
+
     def LD_A_DE_8(self, args):
         """
         0x1A
@@ -575,6 +610,7 @@ class Cpu:
         """
         nn = args[0]
         prefix_func = self.cb_prefix_instructions[nn]['fn']
+        logging.debug('Command: {} {}'.format(hex(nn), prefix_func.__name__))
         prefix_func()
 
     def CALL_16(self, args):
@@ -635,7 +671,7 @@ class Cpu:
         """
         0xCB 0x11
         Rotate C register left by 1 bit
-        Set Carry flag
+        Set Carry/Zero flags
         """
         c = self.get_C()
         carry = self.get_flag('C')
@@ -644,13 +680,17 @@ class Cpu:
             mask = 0b00000001
             new_c = new_c | mask
         new_carry = get_bit_value(new_c, 7)
+
+        flags = []
         if new_carry:
-            mask  = 0b011111111
+            mask = 0b011111111
             new_c = new_c & mask
-            self.set_flags(['C'])
-        else:
-            self.set_flags(False)
+            flags.append('C')
+
+        if new_c == 0:
+            flags.append('Z')
         self.set_C(new_c)
+        self.set_flags(flags)
 
     def CB_Bit_7_H(self):
         """
