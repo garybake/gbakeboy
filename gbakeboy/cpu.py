@@ -31,6 +31,11 @@ class Cpu:
         self.print_registers()
 
         self.instructions = {
+            0x05: {  # 5
+                'fn': self.DEC_B,
+                'cycles': 4,
+                'PC': 1
+            },
             0x06: {  # 6
                 'fn': self.LD_B_d8,
                 'immediate_8': True,
@@ -457,6 +462,21 @@ class Cpu:
 
     # Instructions
 
+    def DEC_B(self, args):
+        """
+        0x05
+        B -= 1
+        """
+        flags = ['N']
+        b = self.get_B()
+
+        # TODO: handle H, C flags
+        b = b - 1
+        if b == 0:
+            flags.append('Z')
+        self.set_B(b)
+        self.set_flags(flags)
+
     def LD_B_d8(self, args):
         """
         0x06
@@ -517,7 +537,7 @@ class Cpu:
         if carry:
             mask = 0b00000001
             new_a = new_a | mask
-        new_carry = get_bit_value(new_a, 7)
+        new_carry = get_bit_value(new_a, 8)
 
         self.clear_flags()
         flags = []
@@ -525,7 +545,6 @@ class Cpu:
             mask = 0b011111111
             new_a = new_a & mask
             flags.append('C')
-
         self.set_A(new_a)
         self.set_flags(flags)
 
