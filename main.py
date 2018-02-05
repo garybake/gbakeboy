@@ -5,8 +5,8 @@ import sys
 
 from gbakeboy import Motherboard, utils, Cartridge
 
-START_WATCHING = 24570
-MAX_TICKS = 24602
+START_WATCHING = 24590
+MAX_TICKS = 24603
 
 
 def loop(gb):
@@ -22,6 +22,7 @@ def loop(gb):
 
     # gb.cpu.mem.mem_print(0xF1, 0x1A)
     # gb.cpu.mem.sound.mem_print()
+
 
 def main(argv):
     logging.debug('initialising...')

@@ -111,6 +111,11 @@ class Cpu:
                 'cycles': 4,
                 'PC': 1
             },
+            0xC1: {  # 193
+                'fn': self.POP_BC,
+                'cycles': 4,
+                'PC': 1
+            },
             0xC5: {  # 197
                 'fn': self.PUSH_BC,
                 'cycles': 16,
@@ -276,7 +281,7 @@ class Cpu:
 
     def push_to_stack(self, val=None):
         """
-        Pushes a value to the stack
+        Pushes a word to the stack
         Uses the SP by default
         SP = SP - 2
         (SP)=PC
@@ -286,6 +291,23 @@ class Cpu:
         if not val:
             val = self.get_PC()
         self.mem.write_word(sp, val)
+
+    def pop_from_stack(self, to_PC=False):
+        """
+        Pops a word from the stack
+        SP = SP + 2
+        Optionally set the stack pointer
+        """
+        sp = self.get_SP()
+        self.set_SP(sp + 2)
+
+        val = self.mem.read_word(sp)
+        logging.debug('Popped: {}'.format(hex(val)))
+
+        if to_PC:
+            self.set_PC(val)
+
+        return val
 
     def set_flags(self, flags):
         """
@@ -602,6 +624,17 @@ class Cpu:
         if result == 0:
             self.set_flags(['Z'])
         self.set_A(result)
+
+    def POP_BC(self, args):
+        """
+        0xC1
+        """
+        val = self.pop_from_stack()
+        self.set_BC(val)
+        # result = self.get_A() ^ self.get_register_8(register)
+        # if result == 0:
+        #     self.set_flags(['Z'])
+        # self.set_A(result)
 
     def PREFIX_CB(self, args):
         """
