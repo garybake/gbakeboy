@@ -6,7 +6,7 @@ import sys
 from gbakeboy import Motherboard, utils, Cartridge
 
 START_WATCHING = 24590
-MAX_TICKS = 24606
+MAX_TICKS = 24645
 
 
 def loop(gb):

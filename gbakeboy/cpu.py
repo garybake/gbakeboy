@@ -81,6 +81,11 @@ class Cpu:
                 'cycles': 12,
                 'PC': 3
             },
+            0x22: {  # 34
+                'fn': self.LD_HLp_A,
+                'cycles': 8,
+                'PC': 1
+            },
             0x31: {  # 49
                 'fn': self.LD_16_SP_nn,
                 'immediate_16': True,
@@ -474,6 +479,12 @@ class Cpu:
         b = b - 1
         if b == 0:
             flags.append('Z')
+
+        # TODO half carry on a dec???
+        # flag += (((self.B & 0xF) - (1 & 0xF)) < 0) << flagH
+        # if (((1 & 0xf) + (self.get_C() & 0xf)) & 0x10) == 0x10:
+        #     flags.append('H')
+
         self.set_B(b)
         self.set_flags(flags)
 
@@ -581,6 +592,19 @@ class Cpu:
         """
         nn = args[0]
         self.set_HL(nn)
+        self.set_flags(False)
+
+    def LD_HLp_A(self, args):
+        """
+        0x22
+        Load A to (HL)
+        HL += 1
+        """
+        addr = self.get_HL()
+        a = self.get_A()
+        logging.debug('addr: {}, val: {}'.format(hex(addr), hex(a)))
+        self.mem.write_byte(addr, a)
+        self.set_HL(addr + 1)
         self.set_flags(False)
 
     def LD_16_SP_nn(self, args):
