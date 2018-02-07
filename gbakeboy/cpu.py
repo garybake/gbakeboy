@@ -86,6 +86,11 @@ class Cpu:
                 'cycles': 8,
                 'PC': 1
             },
+            0x23: {  # 35
+                'fn': self.INC_HL,
+                'cycles': 8,
+                'PC': 1
+            },
             0x31: {  # 49
                 'fn': self.LD_16_SP_nn,
                 'immediate_16': True,
@@ -128,6 +133,11 @@ class Cpu:
             },
             0xC5: {  # 197
                 'fn': self.PUSH_BC,
+                'cycles': 16,
+                'PC': 1
+            },
+            0xC9: {  # 201
+                'fn': self.RET,
                 'cycles': 16,
                 'PC': 1
             },
@@ -602,10 +612,18 @@ class Cpu:
         """
         addr = self.get_HL()
         a = self.get_A()
-        logging.debug('addr: {}, val: {}'.format(hex(addr), hex(a)))
         self.mem.write_byte(addr, a)
         self.set_HL(addr + 1)
         self.set_flags(False)
+
+    def INC_HL(self, args):
+        """
+        0x23
+        INC HL
+        HL += 1
+        """
+        hl = self.get_HL()
+        self.set_HL(hl + 1)
 
     def LD_16_SP_nn(self, args):
         """
@@ -674,10 +692,14 @@ class Cpu:
         """
         val = self.pop_from_stack()
         self.set_BC(val)
-        # result = self.get_A() ^ self.get_register_8(register)
-        # if result == 0:
-        #     self.set_flags(['Z'])
-        # self.set_A(result)
+
+    def RET(self, args):
+        """
+        0xC9
+        """
+        self.pop_from_stack(to_PC=True)
+        self.print_stack()
+        return "KEEP_PC"
 
     def PREFIX_CB(self, args):
         """
@@ -779,3 +801,8 @@ class Cpu:
             self.set_flags([])
         else:
             self.set_flags(['Z'])
+
+    def print_stack(self):
+        stack_start = 0xFFFE
+        stack_end = self.get_SP()
+        logging.debug('stack: {} to {}'.format(hex(stack_start), hex(stack_end)))
